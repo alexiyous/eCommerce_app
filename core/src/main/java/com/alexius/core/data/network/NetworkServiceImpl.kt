@@ -2,6 +2,7 @@ package com.alexius.core.data.network
 
 import com.alexius.core.data.model.remote.ProductsDtoItem
 import com.alexius.core.domain.network.NetworkService
+import com.alexius.core.util.Constants.BASE_URL
 import com.alexius.core.util.UiState
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -15,7 +16,7 @@ import io.ktor.utils.io.InternalAPI
 class NetworkServiceImpl(val client: HttpClient): NetworkService {
     override suspend fun getProducts(): List<ProductsDtoItem> {
         return makeWebRequest(
-            url = "https://fakestoreapi.com/products",
+            url = "$BASE_URL/products",
             method = HttpMethod.Get,
             mapper = { dataModels: List<ProductsDtoItem> ->
                 dataModels
