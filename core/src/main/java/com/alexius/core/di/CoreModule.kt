@@ -6,6 +6,7 @@ val coreModule = module{
     includes(
         networkModule,
         repositoryModule,
-        useCaseModule
+        useCaseModule,
+        managerModule
     )
 }
