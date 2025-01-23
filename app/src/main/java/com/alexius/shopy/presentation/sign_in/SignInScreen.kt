@@ -44,7 +44,8 @@ fun SignInScreen(
     passwordInputFieldError: Boolean,
     onForgotPasswordClick: () -> Unit,
     onSignInClick: () -> Unit,
-    mainButtonEnable: Boolean
+    mainButtonEnable: Boolean,
+    isLoading: Boolean,
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -131,7 +132,8 @@ private fun Preview() {
             passwordInputFieldError = false,
             onForgotPasswordClick = {},
             onSignInClick = {},
-            mainButtonEnable = true
+            mainButtonEnable = true,
+            isLoading = false
         )
     }
 }

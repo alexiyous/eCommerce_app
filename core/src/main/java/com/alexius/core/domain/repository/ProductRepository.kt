@@ -7,4 +7,7 @@ import kotlinx.coroutines.flow.Flow
 interface ProductRepository {
 
     fun getProducts(): Flow<UiState<List<Product>>>
+
+    fun signInWithEmailPassword(email: String, password: String): Flow<UiState<Boolean>>
+
 }
