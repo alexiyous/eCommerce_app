@@ -1,6 +1,9 @@
 package com.alexius.shopy.presentation.sign_in.components
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Card
@@ -13,7 +16,9 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.alexius.shopy.presentation.ui.theme.ShopyTheme
 
 @Composable
 fun PasswordInputField(
@@ -27,7 +32,7 @@ fun PasswordInputField(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 5.dp
         ),
-        shape = MaterialTheme.shapes.small
+        shape = MaterialTheme.shapes.small,
     ) {
         TextField(
             value = password,
@@ -55,8 +60,23 @@ fun PasswordInputField(
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent
+                disabledIndicatorColor = Color.Transparent,
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
             )
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun Preview() {
+    ShopyTheme() {
+
+        PasswordInputField(
+            password = "",
+            onValueChange = {},
+            isError = false
         )
     }
 }

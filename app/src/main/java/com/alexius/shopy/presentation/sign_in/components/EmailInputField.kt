@@ -37,7 +37,7 @@ fun EmailInputField(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 5.dp
         ),
-        shape = MaterialTheme.shapes.small
+        shape = MaterialTheme.shapes.small,
     ) {
         TextField(
             value = email,
@@ -65,7 +65,9 @@ fun EmailInputField(
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent
+                disabledIndicatorColor = Color.Transparent,
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
             )
         )
     }
