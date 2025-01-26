@@ -10,4 +10,5 @@ interface ProductRepository {
 
     fun signInWithEmailPassword(email: String, password: String): Flow<UiState<Boolean>>
 
+    fun resetPassword(email: String): Flow<UiState<Boolean>>
 }

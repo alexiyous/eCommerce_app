@@ -1,5 +1,6 @@
 package com.alexius.shopy.presentation.entrynavigation
 
+import android.content.Intent
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -16,6 +17,8 @@ import org.koin.androidx.compose.koinViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import com.alexius.shopy.presentation.resetpass.ResetPassScreen
+import com.alexius.shopy.presentation.resetpass.ResetPassViewModel
 
 @Composable
 fun EntryNavigation(
@@ -39,6 +42,9 @@ fun EntryNavigation(
                     navigateTo(navController, Route.SignUpScreen.route)
                 }
             )
+        }
+        composable(Route.SignUpScreen.route) {
+            // SignUpScreen()
         }
         composable(Route.SignInScreen.route) {
             val viewModel: SignInViewModel = koinViewModel()
@@ -76,11 +82,54 @@ fun EntryNavigation(
                         }
                     )
                 },
-                mainButtonEnable = !state.emailIsError && !state.passwordIsError
+                mainButtonEnable = !state.emailIsError && !state.passwordIsError,
+                isLoading = state.isLoading
             )
         }
         composable(Route.ResetPasswordScreen.route) {
             // ResetPasswordScreen()
+            val viewModel: ResetPassViewModel = koinViewModel()
+            val state by viewModel.state.collectAsStateWithLifecycle()
+
+            ResetPassScreen(
+                onBackClick = {
+                    navigateTo(navController, Route.SignInScreen.route)
+                },
+                email = state.email,
+                onEmailChange = {
+                    viewModel.updateEmail(it)
+                },
+                emailInputFieldError = state.emailIsError,
+                mainButtonEnable = !state.emailIsError,
+                onSendClick = {
+                    viewModel.resetPass(
+                        callbackOnsuccess = {
+                            val intent = Intent(Intent.ACTION_MAIN).apply {
+                                addCategory(Intent.CATEGORY_APP_EMAIL)
+                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            }
+
+                            // Check if there's an email app available
+                            if (intent.resolveActivity(context.packageManager) != null) {
+                                context.startActivity(intent)
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "No email app found",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        },
+                        callbackOnFailed = {
+                            Toast.makeText(
+                                context,
+                                "Reset Password Failed: $it",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    )
+                }
+            )
         }
     }
 }

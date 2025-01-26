@@ -56,4 +56,20 @@ class ProductRepositoryImpl(
             }
         awaitClose()
     }
+
+    override fun resetPassword(email: String): Flow<UiState<Boolean>> = callbackFlow {
+        auth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    trySend(UiState.Success(true))
+                } else {
+                    trySend(UiState.Error(task.exception?.message ?: "Unknown error"))
+                    Log.d(
+                        "AuthenticationManager",
+                        "resetPassword: ${task.exception?.message}"
+                    )
+                }
+            }
+        awaitClose()
+    }
 }
