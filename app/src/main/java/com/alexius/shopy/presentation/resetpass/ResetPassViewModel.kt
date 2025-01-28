@@ -17,6 +17,10 @@ class ResetPassViewModel(
     private val _state = MutableStateFlow(ResetPassState())
     val state: StateFlow<ResetPassState> = _state
 
+    init {
+        checkEmailValid()
+    }
+
     fun updateEmail(email: String) {
         _state.value = _state.value.copy(email = email)
         checkEmailValid()

@@ -16,6 +16,11 @@ class SignInViewModel(
     private val _state = MutableStateFlow(SignInState())
     val state: StateFlow<SignInState> = _state
 
+    init {
+        checkEmailValid()
+        checkPasswordValid()
+    }
+
     fun signIn(onSignInSuccess: () -> Unit, onSignInFailed: (String) -> Unit) {
         viewModelScope.launch {
             signInWithEmail(_state.value.email, _state.value.password).collect{result ->

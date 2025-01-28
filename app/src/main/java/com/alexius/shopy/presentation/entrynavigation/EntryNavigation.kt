@@ -52,7 +52,7 @@ fun EntryNavigation(
 
             SignInScreen(
                 onBackClick = {
-                    navigateTo(navController, Route.OnboardingScreen.route)
+                    navController.navigateUp()
                 },
                 email = state.email,
                 onEmailValueChange = {
