@@ -1,6 +1,8 @@
 package com.alexius.shopy.presentation.sign_up
 
 data class SignUpState(
+    val isLoading: Boolean = false,
+    val errorMessage: String = "",
     val name: String = "",
     val nameIsError: Boolean = false,
     val email: String = "",

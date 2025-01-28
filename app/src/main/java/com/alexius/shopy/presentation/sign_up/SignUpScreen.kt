@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.alexius.shopy.presentation.commons.LoadingScreen
 import com.alexius.shopy.presentation.commons.MainButton
 import com.alexius.shopy.presentation.commons.TopBar
 import com.alexius.shopy.presentation.sign_in.components.EmailInputField
@@ -52,8 +53,15 @@ fun SignUpScreen(
     containSixChars: Boolean,
     onAlreadyHaveAccountClick: () -> Unit,
     onSignUpClick: () -> Unit,
-    mainButtonEnable: Boolean
+    mainButtonEnable: Boolean,
+    isLoading: Boolean
 ) {
+
+    if (isLoading) {
+        LoadingScreen()
+        return
+    }
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
@@ -159,7 +167,8 @@ private fun Preview() {
             onBackClick = {},
             onAlreadyHaveAccountClick = {},
             onSignUpClick = {},
-            mainButtonEnable = false
+            mainButtonEnable = false,
+            isLoading = false
         )
     }
 }

@@ -3,6 +3,7 @@ package com.alexius.shopy.presentation.sign_in
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.alexius.core.domain.usecase.SaveAppEntry
 import com.alexius.core.domain.usecase.SignInWithEmail
 import com.alexius.core.util.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,7 +11,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class SignInViewModel(
-    private val signInWithEmail: SignInWithEmail
+    private val signInWithEmail: SignInWithEmail,
+    private val saveAppEntry: SaveAppEntry
 ): ViewModel() {
 
     private val _state = MutableStateFlow(SignInState())
@@ -21,13 +23,13 @@ class SignInViewModel(
         checkPasswordValid()
     }
 
-    fun signIn(onSignInSuccess: () -> Unit, onSignInFailed: (String) -> Unit) {
+    fun signIn( onSignInFailed: (String) -> Unit) {
         viewModelScope.launch {
             signInWithEmail(_state.value.email, _state.value.password).collect{result ->
                 when(result){
                     is UiState.Success -> {
+                        saveAppEntry(true)
                         _state.value = _state.value.copy(isLoading = false)
-                        onSignInSuccess()
                     }
                     is UiState.Error -> {
                         _state.value = _state.value.copy(isLoading = false)

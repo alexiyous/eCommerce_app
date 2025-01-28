@@ -1,10 +1,22 @@
 package com.alexius.shopy.presentation.sign_up
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.alexius.core.domain.model.UserInfoDomain
+import com.alexius.core.domain.usecase.CreateInitUserFirestore
+import com.alexius.core.domain.usecase.SaveAppEntry
+import com.alexius.core.domain.usecase.SignUpWithEmail
+import com.alexius.core.util.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
-class SignUpViewModel: ViewModel() {
+class SignUpViewModel(
+    private val signUpWithEmail: SignUpWithEmail,
+    private val createInitUserFirestore: CreateInitUserFirestore,
+    private val saveAppEntry: SaveAppEntry
+): ViewModel() {
 
     private val _state = MutableStateFlow(SignUpState())
     val state: StateFlow<SignUpState> = _state
@@ -15,6 +27,7 @@ class SignUpViewModel: ViewModel() {
     init {
         checkPasswordValid()
         checkNameValid()
+        checkEmailValid()
     }
 
     fun updatePassword(password: String) {
@@ -42,5 +55,69 @@ class SignUpViewModel: ViewModel() {
         _state.value = _state.value.copy(
             nameIsError = _state.value.name.isEmpty()
         )
+    }
+
+    fun updateEmail(email: String) {
+        _state.value = _state.value.copy(email = email)
+        checkEmailValid()
+    }
+
+    private fun checkEmailValid() {
+        _state.value = _state.value.copy(
+            emailIsError = _state.value.email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(_state.value.email).matches()
+        )
+    }
+
+    fun signUp( onSignUpFailed: (String) -> Unit) {
+        viewModelScope.launch {
+            val email = _state.value.email
+            val password = _state.value.password
+
+            signUpWithEmail(email, password).collect{ result ->
+                when(result) {
+                    is UiState.Success -> {
+                        //Create user profile in firestore
+                        createUserInfo(onSignUpFailed)
+                    }
+                    is UiState.Error -> {
+                        // Handle error
+                        _state.value = _state.value.copy(isLoading = false)
+                        _state.value = _state.value.copy(errorMessage = result.errorMessage ?: "An unexpected error occurred")
+                        onSignUpFailed(_state.value.errorMessage)
+                    }
+                    is UiState.Loading -> {
+                        _state.value = _state.value.copy(isLoading = true)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun createUserInfo(onSignUpFailed: (String) -> Unit) {
+        viewModelScope.launch {
+            val userInfo = UserInfoDomain(
+                email = _state.value.email,
+                name = _state.value.name
+            )
+
+            createInitUserFirestore(userInfo).collect { result ->
+                when(result) {
+                    is UiState.Success -> {
+                        // Handle success
+                        saveAppEntry(true)
+                        _state.value = _state.value.copy(isLoading = false)
+                        Log.d("SignUpViewModel", "createUserInfo: Success")
+                    }
+                    is UiState.Error -> {
+                        _state.value = _state.value.copy(isLoading = false)
+                        _state.value = _state.value.copy(errorMessage = result.errorMessage ?: "An unexpected error occurred")
+                        onSignUpFailed(_state.value.errorMessage)
+                    }
+                    is UiState.Loading -> {
+                        _state.value = _state.value.copy(isLoading = true)
+                    }
+                }
+            }
+        }
     }
 }

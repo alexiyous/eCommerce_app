@@ -1,6 +1,7 @@
 package com.alexius.core.domain.repository
 
 import com.alexius.core.domain.model.Product
+import com.alexius.core.domain.model.UserInfoDomain
 import com.alexius.core.util.UiState
 import kotlinx.coroutines.flow.Flow
 
@@ -10,5 +11,9 @@ interface ProductRepository {
 
     fun signInWithEmailPassword(email: String, password: String): Flow<UiState<Boolean>>
 
+    fun createAccountWithEmailPassword(email: String, password: String): Flow<UiState<Boolean>>
+
     fun resetPassword(email: String): Flow<UiState<Boolean>>
+
+    fun initUserInfoInFirestore(userInfo: UserInfoDomain): Flow<UiState<Unit>>
 }

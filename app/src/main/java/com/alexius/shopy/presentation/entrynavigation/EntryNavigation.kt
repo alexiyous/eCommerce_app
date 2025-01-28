@@ -19,11 +19,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.alexius.shopy.presentation.resetpass.ResetPassScreen
 import com.alexius.shopy.presentation.resetpass.ResetPassViewModel
+import com.alexius.shopy.presentation.sign_up.SignUpScreen
+import com.alexius.shopy.presentation.sign_up.SignUpViewModel
 
 @Composable
 fun EntryNavigation(
     modifier: Modifier = Modifier,
-    onEndEntryNavigation: () -> Unit
 ) {
     val navController = rememberNavController()
     val context = LocalContext.current
@@ -44,7 +45,51 @@ fun EntryNavigation(
             )
         }
         composable(Route.SignUpScreen.route) {
-            // SignUpScreen()
+            val viewModel: SignUpViewModel = koinViewModel()
+            val state by viewModel.state.collectAsStateWithLifecycle()
+
+            SignUpScreen(
+                onBackClick = {
+                    navController.navigateUp()
+                },
+                email = state.email,
+                onEmailValueChange = {
+                    viewModel.updateEmail(it)
+                },
+                emailIsError = state.emailIsError,
+                password = state.password,
+                onPasswordValueChange = {
+                    viewModel.updatePassword(it)
+                },
+                passwordIsError = state.passwordIsError,
+                onSignUpClick = {
+                    viewModel.signUp(
+                        onSignUpFailed = {
+                            // Show Toast
+                            Toast.makeText(
+                                context,
+                                "Sign Up Failed: $it",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    )
+                },
+                mainButtonEnable = !state.emailIsError && !state.passwordIsError && !state.nameIsError,
+                isLoading = state.isLoading,
+                name = state.name,
+                onNameValueChange = {
+                    viewModel.updateName(it)
+                },
+                nameIsError = state.nameIsError,
+                containOneLowerCase = state.containOneLowerCase,
+                containOneUpperCase = state.containOneUpperCase,
+                containOneDigit = state.containOneDigit,
+                containOneSpecialChar = state.containOneSpecialChar,
+                containSixChars = state.containSixChars,
+                onAlreadyHaveAccountClick = {
+                    navigateTo(navController, Route.SignInScreen.route)
+                }
+            )
         }
         composable(Route.SignInScreen.route) {
             val viewModel: SignInViewModel = koinViewModel()
@@ -69,9 +114,6 @@ fun EntryNavigation(
                 },
                 onSignInClick = {
                     viewModel.signIn(
-                        onSignInSuccess = {
-                            onEndEntryNavigation()
-                        },
                         onSignInFailed = {
                             // Show Toast
                             Toast.makeText(
