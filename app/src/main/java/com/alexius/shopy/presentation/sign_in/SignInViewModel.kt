@@ -1,5 +1,6 @@
 package com.alexius.shopy.presentation.sign_in
 
+import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -28,7 +29,8 @@ class SignInViewModel(
             signInWithEmail(_state.value.email, _state.value.password).collect{result ->
                 when(result){
                     is UiState.Success -> {
-                        saveAppEntry(false)
+                        saveAppEntry(true)
+                        Log.d("SignInViewModel", "signInWithEmail: ${result.data}")
                         _state.value = _state.value.copy(isLoading = false)
                     }
                     is UiState.Error -> {

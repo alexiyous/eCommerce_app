@@ -22,13 +22,14 @@ class MainViewModel(private val readAppEntryUseCase: ReadAppEntry) : ViewModel()
     fun readAppEntry() {
         viewModelScope.launch{
             readAppEntryUseCase().collect {shouldStartFromMainNavigation ->
-                _state.value = MainState(startDestination = if(shouldStartFromMainNavigation) {
+                _state.value = _state.value.copy(startDestination = if(shouldStartFromMainNavigation) {
                     Route.MainNavigation.route
                 } else {
                     Route.EntryNavigation.route
                 })
+                Log.d("MainViewModel", "startDestination: ${state.value.startDestination}")
                 delay(300)
-                _state.value = MainState(splashCondition = false)
+                _state.value = _state.value.copy(splashCondition = false)
             }
         }
     }

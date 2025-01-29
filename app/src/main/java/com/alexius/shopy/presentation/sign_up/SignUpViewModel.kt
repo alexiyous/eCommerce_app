@@ -1,12 +1,10 @@
 package com.alexius.shopy.presentation.sign_up
 
-import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alexius.core.domain.model.UserInfoDomain
 import com.alexius.core.domain.usecase.CreateInitUserFirestore
-import com.alexius.core.domain.usecase.SaveAppEntry
 import com.alexius.core.domain.usecase.SignUpWithEmail
 import com.alexius.core.util.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +14,6 @@ import kotlinx.coroutines.launch
 class SignUpViewModel(
     private val signUpWithEmail: SignUpWithEmail,
     private val createInitUserFirestore: CreateInitUserFirestore,
-    private val saveAppEntry: SaveAppEntry
 ): ViewModel() {
 
     private val _state = MutableStateFlow(SignUpState())

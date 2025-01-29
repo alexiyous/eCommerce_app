@@ -1,11 +1,13 @@
 package com.alexius.shopy.presentation
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -30,7 +32,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ShopyTheme {
-                val state by viewModel.state.collectAsStateWithLifecycle()
+                val state by viewModel.state.collectAsState()
                 val navController = rememberNavController()
                 NavHost(navController = navController, startDestination = state.startDestination){
                     composable(route = Route.EntryNavigation.route){
@@ -39,6 +41,7 @@ class MainActivity : ComponentActivity() {
 
                     composable(route = Route.MainNavigation.route){
                         Greeting(name = "Shopy")
+                        Log.d("MainActivity", state.startDestination)
                     }
                 }
             }

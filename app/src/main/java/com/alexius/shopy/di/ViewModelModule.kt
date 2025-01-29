@@ -22,6 +22,6 @@ val viewModelModule = module{
         ResetPassViewModel(get())
     }
     viewModel{
-        SignUpViewModel(get(), get(), get())
+        SignUpViewModel(get(), get())
     }
 }

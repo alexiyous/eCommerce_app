@@ -45,7 +45,8 @@ class ProductRepositoryImpl(
         email: String,
         password: String
     ): Flow<UiState<Boolean>> = callbackFlow {
-        auth.createUserWithEmailAndPassword(email, password)
+        trySend(UiState.Loading)
+        auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     trySend(UiState.Success(true))
