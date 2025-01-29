@@ -3,6 +3,7 @@ package com.alexius.shopy.presentation.commons
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +29,9 @@ fun MainButton(
             .height(48.dp),
         shape = MaterialTheme.shapes.extraLarge,
         enabled = enabled,
+        colors = ButtonDefaults.buttonColors(
+            disabledContainerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+        )
     ){
         Text(
             text = text,

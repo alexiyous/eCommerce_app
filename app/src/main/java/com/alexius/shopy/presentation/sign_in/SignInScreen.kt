@@ -90,7 +90,7 @@ fun SignInScreen(
                 onValueChange = onEmailValueChange,
                 isError = emailInputFieldError
             )
-            Spacer(modifier = modifier.height(8.dp))
+            Spacer(modifier = modifier.height(12.dp))
             PasswordInputField(
                 password = password,
                 onValueChange = onPasswordValueChange,

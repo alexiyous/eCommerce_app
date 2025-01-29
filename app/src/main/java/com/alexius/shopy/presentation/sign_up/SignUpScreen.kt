@@ -100,13 +100,13 @@ fun SignUpScreen(
                 onNameChange = onNameValueChange,
                 isError = nameIsError
             )
-            Spacer(modifier = modifier.height(8.dp))
+            Spacer(modifier = modifier.height(12.dp))
             EmailInputField(
                 email = email,
                 onValueChange = onEmailValueChange,
                 isError = emailIsError
             )
-            Spacer(modifier = modifier.height(8.dp))
+            Spacer(modifier = modifier.height(12.dp))
             PasswordSignUpField(
                 password = password,
                 onValueChange = onPasswordValueChange,

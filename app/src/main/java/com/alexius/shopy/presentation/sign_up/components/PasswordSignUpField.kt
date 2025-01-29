@@ -64,14 +64,13 @@ fun PasswordSignUpField(
         Card(
             modifier = modifier.fillMaxWidth(),
             elevation = CardDefaults.cardElevation(
-                defaultElevation = 5.dp
+                defaultElevation = 0.dp
             ),
             shape = MaterialTheme.shapes.small,
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer
+            )
         ) {
-            /*DisableSelection {
-
-
-            }*/
             TextField(
                 value = password,
                 onValueChange = onValueChange,
@@ -88,7 +87,7 @@ fun PasswordSignUpField(
                     Text(
                         text = "Password",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Gray
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.5f)
                     )
                 },
                 visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
@@ -132,9 +131,11 @@ fun PasswordSignUpField(
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                     disabledIndicatorColor = Color.Transparent,
+                    errorIndicatorColor = Color.Transparent,
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
-                    errorIndicatorColor = Color.Transparent,
+                    errorContainerColor = Color.Transparent,
+                    disabledContainerColor = Color.Transparent
                 )
             )
         }
