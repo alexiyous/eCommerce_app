@@ -28,7 +28,7 @@ class SignInViewModel(
             signInWithEmail(_state.value.email, _state.value.password).collect{result ->
                 when(result){
                     is UiState.Success -> {
-                        saveAppEntry(true)
+                        saveAppEntry(false)
                         _state.value = _state.value.copy(isLoading = false)
                     }
                     is UiState.Error -> {

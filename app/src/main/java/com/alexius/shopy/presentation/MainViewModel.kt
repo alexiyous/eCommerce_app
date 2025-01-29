@@ -1,5 +1,6 @@
 package com.alexius.shopy.presentation
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alexius.core.domain.usecase.ReadAppEntry
@@ -26,9 +27,9 @@ class MainViewModel(private val readAppEntryUseCase: ReadAppEntry) : ViewModel()
                 } else {
                     Route.EntryNavigation.route
                 })
+                delay(300)
+                _state.value = MainState(splashCondition = false)
             }
-            delay(300)
-            _state.value = MainState(splashCondition = false)
         }
     }
 }

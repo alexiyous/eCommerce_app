@@ -58,6 +58,7 @@ fun NameInputField(
                 disabledIndicatorColor = Color.Transparent,
                 focusedContainerColor = Color.Transparent,
                 unfocusedContainerColor = Color.Transparent,
+                errorIndicatorColor = Color.Transparent,
             )
         )
     }

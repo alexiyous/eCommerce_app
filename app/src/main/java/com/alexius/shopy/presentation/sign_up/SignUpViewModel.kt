@@ -1,6 +1,7 @@
 package com.alexius.shopy.presentation.sign_up
 
 import android.util.Log
+import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alexius.core.domain.model.UserInfoDomain
@@ -37,7 +38,7 @@ class SignUpViewModel(
 
     private fun checkPasswordValid() {
         _state.value = _state.value.copy(
-            passwordIsError = _state.value.password.isEmpty() || !regexPassword.toRegex().matches(_state.value.password),
+            passwordIsError = !regexPassword.toRegex().containsMatchIn(_state.value.password),
             containOneLowerCase = _state.value.password.contains(Regex("[a-z]")),
             containOneUpperCase = _state.value.password.contains(Regex("[A-Z]")),
             containOneDigit = _state.value.password.contains(Regex("[0-9]")),
@@ -53,7 +54,7 @@ class SignUpViewModel(
 
     private fun checkNameValid() {
         _state.value = _state.value.copy(
-            nameIsError = _state.value.name.isEmpty()
+            nameIsError = _state.value.name.isEmpty() || _state.value.name.length < 3
         )
     }
 
@@ -64,11 +65,11 @@ class SignUpViewModel(
 
     private fun checkEmailValid() {
         _state.value = _state.value.copy(
-            emailIsError = _state.value.email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(_state.value.email).matches()
+            emailIsError = _state.value.email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(_state.value.email).matches()
         )
     }
 
-    fun signUp( onSignUpFailed: (String) -> Unit) {
+    fun signUp(onSignUpSuccess: () -> Unit, onSignUpFailed: (String) -> Unit) {
         viewModelScope.launch {
             val email = _state.value.email
             val password = _state.value.password
@@ -77,7 +78,7 @@ class SignUpViewModel(
                 when(result) {
                     is UiState.Success -> {
                         //Create user profile in firestore
-                        createUserInfo(onSignUpFailed)
+                        createUserInfo(onSignUpSuccess, onSignUpFailed)
                     }
                     is UiState.Error -> {
                         // Handle error
@@ -93,7 +94,7 @@ class SignUpViewModel(
         }
     }
 
-    private fun createUserInfo(onSignUpFailed: (String) -> Unit) {
+    private fun createUserInfo(onSignUpSuccess: () -> Unit, onSignUpFailed: (String) -> Unit) {
         viewModelScope.launch {
             val userInfo = UserInfoDomain(
                 email = _state.value.email,
@@ -104,9 +105,8 @@ class SignUpViewModel(
                 when(result) {
                     is UiState.Success -> {
                         // Handle success
-                        saveAppEntry(true)
+                        onSignUpSuccess()
                         _state.value = _state.value.copy(isLoading = false)
-                        Log.d("SignUpViewModel", "createUserInfo: Success")
                     }
                     is UiState.Error -> {
                         _state.value = _state.value.copy(isLoading = false)

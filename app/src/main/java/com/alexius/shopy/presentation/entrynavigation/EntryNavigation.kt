@@ -1,6 +1,9 @@
 package com.alexius.shopy.presentation.entrynavigation
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -64,6 +67,10 @@ fun EntryNavigation(
                 passwordIsError = state.passwordIsError,
                 onSignUpClick = {
                     viewModel.signUp(
+                        onSignUpSuccess = {
+                            navigateTo(navController, Route.SignInScreen.route)
+                            Log.d("SignUp", "Sign Up Success")
+                        },
                         onSignUpFailed = {
                             // Show Toast
                             Toast.makeText(
@@ -146,15 +153,16 @@ fun EntryNavigation(
                 onSendClick = {
                     viewModel.resetPass(
                         callbackOnsuccess = {
-                            val intent = Intent(Intent.ACTION_MAIN).apply {
-                                addCategory(Intent.CATEGORY_APP_EMAIL)
-                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            }
-
-                            // Check if there's an email app available
-                            if (intent.resolveActivity(context.packageManager) != null) {
+                            try {
+                                val intent = Intent
+                                    .makeMainSelectorActivity(
+                                        Intent.ACTION_MAIN,
+                                        Intent.CATEGORY_APP_EMAIL
+                                    )
+                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                 context.startActivity(intent)
-                            } else {
+                            } catch (ignored: ActivityNotFoundException) {
+                                // No activity found for the intent
                                 Toast.makeText(
                                     context,
                                     "No email app found",

@@ -16,12 +16,12 @@ val viewModelModule = module{
         MainViewModel(get())
     }
     viewModel{
-        SignInViewModel(get())
+        SignInViewModel(get(), get())
     }
     viewModel{
         ResetPassViewModel(get())
     }
     viewModel{
-        SignUpViewModel(get(), get())
+        SignUpViewModel(get(), get(), get())
     }
 }

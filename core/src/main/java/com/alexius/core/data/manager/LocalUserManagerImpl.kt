@@ -13,9 +13,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class LocalUserManagerImpl(private val application: Application): LocalUserManager {
+
+
     override fun readAppEntry(): Flow<Boolean> {
         return application.dataStore.data.map { preferences ->
-            preferences[PreferenceKeys.APP_ENTRY] ?: false
+            preferences[PreferenceKeys.APP_ENTRY] == true
         }
     }
 
