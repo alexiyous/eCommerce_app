@@ -60,6 +60,15 @@ dependencies {
     //lottie
     implementation ("com.airbnb.android:lottie-compose:6.6.2")
 
+    //Shimmer
+    implementation(libs.compose.shimmer)
+
+    //Coil
+    implementation(libs.coil.compose)
+
+    //Icons
+    implementation("androidx.compose.material:material-icons-extended:1.7.7")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

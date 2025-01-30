@@ -27,7 +27,7 @@ class HomeViewModel(
                     }
 
                     is UiState.Success -> {
-                        _state.value = HomeState(data = result.data)
+                        _state.value = HomeState(products = result.data)
                     }
 
                     is UiState.Error -> {

@@ -101,6 +101,7 @@ class ProductRepositoryImpl(
         val user = hashMapOf(
             "email" to userInfo.email,
             "name" to userInfo.name,
+            "profileImage" to userInfo.profileImage
         )
         val userId = auth.currentUser?.uid ?: throw Exception("User not authenticated")
         trySend(UiState.Loading)

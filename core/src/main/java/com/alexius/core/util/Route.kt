@@ -15,4 +15,10 @@ sealed class Route(val route: String) {
     object SignUpScreen : Route(route = "signUpScreen")
 
     object HomeScreen : Route(route = "homeScreen")
+
+    object SearchScreen : Route(route = "searchScreen")
+
+    object CheckOutScreen : Route(route = "checkOutScreen")
+
+    object ProfileScreen : Route(route = "profileScreen")
 }

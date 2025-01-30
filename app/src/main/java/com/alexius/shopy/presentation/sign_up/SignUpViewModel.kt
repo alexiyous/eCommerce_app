@@ -95,7 +95,8 @@ class SignUpViewModel(
         viewModelScope.launch {
             val userInfo = UserInfoDomain(
                 email = _state.value.email,
-                name = _state.value.name
+                name = _state.value.name,
+                profileImage = "",
             )
 
             createInitUserFirestore(userInfo).collect { result ->
