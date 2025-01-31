@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.alexius.core.domain.usecase.GetProductsUseCase
 import com.alexius.core.domain.usecase.GetUserInfo
 import com.alexius.core.util.UiState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -22,7 +23,7 @@ class HomeViewModel(
     }
 
     fun getProducts() {
-        viewModelScope.launch{
+        viewModelScope.launch(){
             getProductsUseCase().collect{ result ->
                 when (result) {
                     is UiState.Loading -> {
@@ -42,7 +43,7 @@ class HomeViewModel(
     }
 
     private fun fetchUserInfo() {
-        viewModelScope.launch {
+        viewModelScope.launch() {
             getUserInfo().collect { result ->
                 when (result) {
                     is UiState.Loading -> {

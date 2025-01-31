@@ -3,6 +3,7 @@ package com.alexius.shopy.presentation.main_navigation
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -90,26 +91,25 @@ fun MainNavigation(
     }
 
     Scaffold(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier,
         bottomBar = {
-            if (isBottomBarVisible.value){
-                AnimatedNavigationBar(
-                    buttons = bottomNavItems,
-                    barColor = MaterialTheme.colorScheme.surfaceVariant,
-                    circleColor = MaterialTheme.colorScheme.surfaceVariant,
-                    selectedColor = MaterialTheme.colorScheme.onSurface,
-                    unselectedColor = Color.Gray,
-                    selectedItem = selectedItem,
-                    onItemClick = { index ->
-                        when (index) {
-                            0 -> navigateTo(navController, Route.HomeScreen.route)
-                            1 -> navigateTo(navController, Route.SearchScreen.route)
-                            2 -> navigateTo(navController, Route.CheckOutScreen.route)
-                            3 -> navigateTo(navController, Route.ProfileScreen.route)
-                        }
+            AnimatedNavigationBar(
+                isBottomBarVisible = isBottomBarVisible.value,
+                buttons = bottomNavItems,
+                barColor = MaterialTheme.colorScheme.surfaceVariant,
+                circleColor = MaterialTheme.colorScheme.surfaceVariant,
+                selectedColor = MaterialTheme.colorScheme.onSurface,
+                unselectedColor = Color.Gray,
+                selectedItem = selectedItem,
+                onItemClick = { index ->
+                    when (index) {
+                        0 -> navigateTo(navController, Route.HomeScreen.route)
+                        1 -> navigateTo(navController, Route.SearchScreen.route)
+                        2 -> navigateTo(navController, Route.CheckOutScreen.route)
+                        3 -> navigateTo(navController, Route.ProfileScreen.route)
                     }
-                )
-            }
+                }
+            )
         }
     ) { innerPadding ->
         NavHost(
@@ -205,6 +205,7 @@ fun MainNavigation(
 
             composable(Route.ListProductScreen.route){
                 val products = navController.previousBackStackEntry?.savedStateHandle?.get<List<Product>>("productList")
+
             }
         }
     }

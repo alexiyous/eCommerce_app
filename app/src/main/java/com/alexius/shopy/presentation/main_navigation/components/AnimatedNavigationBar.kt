@@ -1,6 +1,7 @@
 package com.alexius.shopy.presentation.main_navigation.components
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
@@ -8,12 +9,17 @@ import androidx.compose.animation.core.animateIntOffset
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
@@ -60,6 +66,7 @@ fun AnimatedNavigationBar(
     unselectedColor: Color,
     selectedItem: Int,
     onItemClick: (Int) -> Unit,
+    isBottomBarVisible: Boolean
 ) {
     val circleRadius = 26.dp
 
@@ -104,52 +111,59 @@ fun AnimatedNavigationBar(
         )
     }
 
-    Box {
-        Circle(
-            modifier = Modifier
-                .offset { circleOffset }
-                // the circle should be above the bar for accessibility reasons
-                .zIndex(1f),
-            color = circleColor,
-            radius = circleRadius,
-            button = buttons[selectedItem],
-            iconColor = selectedColor,
-        )
-        Row(
-            modifier = Modifier
-                .onPlaced { barSize = it.size }
-                .graphicsLayer {
-                    shape = barShape
-                    clip = true
-                }
-                .fillMaxWidth()
-                .background(barColor),
-            horizontalArrangement = Arrangement.SpaceAround,
-        ) {
-            buttons.forEachIndexed { index, button ->
-                NavigationBarItem(
-                    selected = selectedItem == index,
-                    onClick = { onItemClick(index) },
-                    icon = {
-                        val iconAlpha by animateFloatAsState(
-                            targetValue = if (selectedItem == index) 0f else 1f,
-                            label = "Navbar item icon"
+    AnimatedVisibility(
+        visible = isBottomBarVisible,
+        enter = slideInVertically(initialOffsetY = { it }),
+        exit = slideOutVertically(targetOffsetY = { it }),
+    ) {
+        Box(modifier = Modifier) {
+            Circle(
+                modifier = Modifier
+                    .offset { circleOffset }
+                    // the circle should be above the bar for accessibility reasons
+                    .zIndex(1f),
+                color = circleColor,
+                radius = circleRadius,
+                button = buttons[selectedItem],
+                iconColor = selectedColor,
+            )
+            Row(
+                modifier = Modifier
+                    .height(120.dp)
+                    .onPlaced { barSize = it.size }
+                    .graphicsLayer {
+                        shape = barShape
+                        clip = true
+                    }
+                    .fillMaxWidth()
+                    .background(barColor),
+                horizontalArrangement = Arrangement.SpaceAround,
+            ) {
+                buttons.forEachIndexed { index, button ->
+                    NavigationBarItem(
+                        selected = selectedItem == index,
+                        onClick = { onItemClick(index) },
+                        icon = {
+                            val iconAlpha by animateFloatAsState(
+                                targetValue = if (selectedItem == index) 0f else 1f,
+                                label = "Navbar item icon"
+                            )
+                            Icon(
+                                imageVector = button.icon,
+                                contentDescription = button.text,
+                                modifier = Modifier.alpha(iconAlpha)
+                            )
+                        },
+                        label = { Text(button.text) },
+                        colors = NavigationBarItemDefaults.colors().copy(
+                            selectedIconColor = selectedColor,
+                            selectedTextColor = selectedColor,
+                            unselectedIconColor = unselectedColor,
+                            unselectedTextColor = unselectedColor,
+                            selectedIndicatorColor = Color.Transparent,
                         )
-                        Icon(
-                            imageVector = button.icon,
-                            contentDescription = button.text,
-                            modifier = Modifier.alpha(iconAlpha)
-                        )
-                    },
-                    label = { Text(button.text) },
-                    colors = NavigationBarItemDefaults.colors().copy(
-                        selectedIconColor = selectedColor,
-                        selectedTextColor = selectedColor,
-                        unselectedIconColor = unselectedColor,
-                        unselectedTextColor = unselectedColor,
-                        selectedIndicatorColor = Color.Transparent,
                     )
-                )
+                }
             }
         }
     }
