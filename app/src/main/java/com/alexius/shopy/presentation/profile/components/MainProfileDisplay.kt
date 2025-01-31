@@ -57,7 +57,6 @@ fun MainProfileDisplay(
     modifier: Modifier = Modifier,
     userInfo: UserInfoDomain,
     onCropSuccess: (Bitmap) -> Unit,
-    isUploading: Boolean,
 ) {
     val context = LocalContext.current
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
@@ -118,11 +117,6 @@ fun MainProfileDisplay(
                         )
                         .align(Alignment.Center)
                 )
-                if (isUploading){
-                    CircularProgressIndicator(
-                        modifier = modifier.size(80.dp),
-                    )
-                }
             } else {
                 Image(
                     modifier = modifier
@@ -134,11 +128,6 @@ fun MainProfileDisplay(
                     painter = painter,
                     contentDescription = null
                 )
-                if (isUploading){
-                    CircularProgressIndicator(
-                        modifier = modifier.size(80.dp),
-                    )
-                }
             }
 
             Icon(
@@ -168,7 +157,6 @@ private fun Preview() {
             ),
 
             onCropSuccess = {},
-            isUploading = false
         )
     }
 }

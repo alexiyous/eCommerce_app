@@ -1,5 +1,6 @@
 package com.alexius.shopy.presentation.main_navigation
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -15,6 +16,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -29,6 +31,7 @@ import androidx.navigation.compose.rememberNavController
 import com.alexius.core.domain.model.Product
 import com.alexius.core.domain.model.UserInfoDomain
 import com.alexius.core.util.Route
+import com.alexius.shopy.presentation.commons.LoadingScreen
 import com.alexius.shopy.presentation.home.HomeScreen
 import com.alexius.shopy.presentation.home.HomeViewModel
 import com.alexius.shopy.presentation.main_navigation.components.AnimatedNavigationBar
@@ -43,6 +46,10 @@ fun MainNavigation(
 ) {
 
     val context = LocalContext.current
+
+    var isLoading by remember {
+        mutableStateOf(false)
+    }
 
     val bottomNavItems = remember{
         listOf(
@@ -113,10 +120,11 @@ fun MainNavigation(
             composable(Route.HomeScreen.route){
                 val viewModel: HomeViewModel = koinViewModel()
                 val state by viewModel.state.collectAsStateWithLifecycle()
-                val imageData = navController.previousBackStackEntry?.savedStateHandle?.get<String?>("imageData")
+                val newUserInfo = navController.currentBackStackEntry?.savedStateHandle?.get<UserInfoDomain?>("newUserInfo")
 
                 LaunchedEffect(state.userInfo) {
-                    navController.currentBackStackEntry?.savedStateHandle?.set("userInfo", state.userInfo)
+                    navController.currentBackStackEntry?.savedStateHandle?.set("userInfo", if (newUserInfo != null) newUserInfo else state.userInfo)
+                    Log.d("MainNavigation", "ImageData: $newUserInfo")
                 }
 
                 val featuredProducts = remember(state.products){
@@ -131,7 +139,7 @@ fun MainNavigation(
                     onProfileSectionClicked = {
                         navigateTo(navController, Route.ProfileScreen.route)
                     },
-                    imageProfile = imageData ?: state.userInfo.profileImage,
+                    imageProfile = newUserInfo?.profileImage ?: state.userInfo.profileImage,
                     nameProfile = state.userInfo.name,
                     isLoading = state.isLoading,
                     featuredProducts = featuredProducts,
@@ -157,7 +165,7 @@ fun MainNavigation(
                 // CheckOutScreen()
             }
             composable(Route.ProfileScreen.route){
-                val userInfo = navController.previousBackStackEntry?.savedStateHandle?.get<UserInfoDomain>("userInfo")
+                val userInfo = navController.previousBackStackEntry?.savedStateHandle?.get<UserInfoDomain?>("userInfo")
                 val viedModel: ProfileScreenViewModel = koinViewModel()
                 val state by viedModel.state.collectAsStateWithLifecycle()
 
@@ -167,11 +175,16 @@ fun MainNavigation(
                         name = "",
                         profileImage = ""
                     ),
+                    onUploadingNewProfilePic = {
+                        isLoading = it
+                    },
                     isLoading = state.isLoading,
                     onCropSuccess = {
                         viedModel.uploadProfileImage(it,
                             onSuccessUploading = {
-                                navController.currentBackStackEntry?.savedStateHandle?.set("imageData", it)
+                                Log.d("ProfileScreen", "UserInfo: $userInfo")
+                                Log.d("ProfileScreen", "Upload Image Success: $it")
+                                navController.previousBackStackEntry?.savedStateHandle?.set("newUserInfo", userInfo?.copy(profileImage = it))
                             },
                             onError = {
                                 // Show Toast
@@ -194,6 +207,10 @@ fun MainNavigation(
                 val products = navController.previousBackStackEntry?.savedStateHandle?.get<List<Product>>("productList")
             }
         }
+    }
+
+    if (isLoading){
+        LoadingScreen()
     }
 
 }
