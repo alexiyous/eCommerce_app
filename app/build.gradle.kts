@@ -71,6 +71,8 @@ dependencies {
 
     implementation (libs.androidx.navigation.compose)
 
+    implementation("com.vanniktech:android-image-cropper:4.6.0")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
