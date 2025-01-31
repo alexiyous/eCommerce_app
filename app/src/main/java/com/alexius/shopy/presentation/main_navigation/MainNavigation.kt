@@ -17,14 +17,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.alexius.core.domain.model.Product
+import com.alexius.core.domain.model.UserInfoDomain
 import com.alexius.core.util.Route
+import com.alexius.shopy.presentation.home.HomeScreen
+import com.alexius.shopy.presentation.home.HomeViewModel
 import com.alexius.shopy.presentation.main_navigation.components.AnimatedNavigationBar
 import com.alexius.shopy.presentation.main_navigation.components.ButtonData
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun MainNavigation(
@@ -97,7 +103,40 @@ fun MainNavigation(
             modifier = modifier.padding(innerPadding)
         ){
             composable(Route.HomeScreen.route){
-                // HomeScreen()
+                val viewModel: HomeViewModel = koinViewModel()
+                val state by viewModel.state.collectAsStateWithLifecycle()
+                val imageData = navController.previousBackStackEntry?.savedStateHandle?.get<String?>("imageData")
+                HomeScreen(
+                    onProfileSectionClicked = {
+                        navController.currentBackStackEntry?.savedStateHandle?.set("userInfo", state.userInfo)
+                        navController.navigate(
+                            route = Route.ProfileScreen.route
+                        )
+                    },
+                    imageProfile = imageData ?: state.userInfo.profileImage,
+                    nameProfile = state.userInfo.name,
+                    isLoading = state.isLoading,
+                    featuredProducts = state.products.shuffled().take(5),
+                    onProductClick = {
+                        navController.currentBackStackEntry?.savedStateHandle?.set("product", it)
+                        navController.navigate(
+                            route = Route.DetailProductScreen.route
+                        )
+                    },
+                    onFeatureProductSeeAllClick = {
+                        navController.currentBackStackEntry?.savedStateHandle?.set("productList", state.products.shuffled())
+                        navController.navigate(
+                            route = Route.ListProductScreen.route
+                        )
+                    },
+                    popularProducts = state.products.shuffled().take(5),
+                    onPopularProductSeeAllClick = {
+                        navController.currentBackStackEntry?.savedStateHandle?.set("productList", state.products.shuffled())
+                        navController.navigate(
+                            route = Route.ListProductScreen.route
+                        )
+                    }
+                )
             }
             composable(Route.SearchScreen.route){
                 // SearchScreen()
@@ -106,7 +145,15 @@ fun MainNavigation(
                 // CheckOutScreen()
             }
             composable(Route.ProfileScreen.route){
-                // ProfileScreen()
+                val userInfo = navController.previousBackStackEntry?.savedStateHandle?.get<UserInfoDomain>("userInfo")
+            }
+
+            composable(Route.DetailProductScreen.route){
+                val product = navController.previousBackStackEntry?.savedStateHandle?.get<Product>("product")
+            }
+
+            composable(Route.ListProductScreen.route){
+                val products = navController.previousBackStackEntry?.savedStateHandle?.get<List<Product>>("productList")
             }
         }
     }

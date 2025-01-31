@@ -30,11 +30,11 @@ class HomeViewModel(
                     }
 
                     is UiState.Success -> {
-                        _state.value = _state.value.copy(products = result.data)
+                        _state.value = _state.value.copy(products = result.data, isLoading = false)
                     }
 
                     is UiState.Error -> {
-                        _state.value = _state.value.copy(error = result.errorMessage)
+                        _state.value = _state.value.copy(error = result.errorMessage, isLoading = false)
                     }
                 }
             }
@@ -50,11 +50,11 @@ class HomeViewModel(
                     }
 
                     is UiState.Success -> {
-                        _state.value = _state.value.copy(userInfo = result.data)
+                        _state.value = _state.value.copy(userInfo = result.data, isLoading = false)
                     }
 
                     is UiState.Error -> {
-                        _state.value = _state.value.copy(error = result.errorMessage)
+                        _state.value = _state.value.copy(error = result.errorMessage, isLoading = false)
                     }
                 }
             }

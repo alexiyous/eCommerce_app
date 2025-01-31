@@ -21,4 +21,8 @@ sealed class Route(val route: String) {
     object CheckOutScreen : Route(route = "checkOutScreen")
 
     object ProfileScreen : Route(route = "profileScreen")
+
+    object DetailProductScreen : Route(route = "detailProductScreen")
+
+    object ListProductScreen : Route(route = "listProductScreen")
 }

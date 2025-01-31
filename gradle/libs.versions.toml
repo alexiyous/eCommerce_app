@@ -16,6 +16,7 @@ koin = "4.0.1"
 koinAndroidxCompose = "4.0.1"
 ktor = "3.0.2"
 foundation = "1.7.6"
+navigationCompose = "2.8.6"
 uiTextGoogleFonts = "1.7.6"
 coreSplashscreen = "1.0.1"
 datastorePreferences = "1.1.2"
@@ -27,6 +28,7 @@ firebaseStorage = "21.0.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 androidx-ui-text-google-fonts = { module = "androidx.compose.ui:ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 compose-shimmer = { module = "com.valentinilk.shimmer:compose-shimmer", version.ref = "composeShimmer" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
