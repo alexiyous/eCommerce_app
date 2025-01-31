@@ -5,22 +5,27 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,15 +33,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.alexius.core.domain.model.UserInfoDomain
+import com.alexius.shopy.R
+import com.alexius.shopy.presentation.ui.theme.ShopyTheme
 import com.canhub.cropper.CropImage
 import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
@@ -47,7 +56,8 @@ import com.valentinilk.shimmer.shimmer
 fun MainProfileDisplay(
     modifier: Modifier = Modifier,
     userInfo: UserInfoDomain,
-    onCropSuccess: (Bitmap) -> Unit
+    onCropSuccess: (Bitmap) -> Unit,
+    isUploading: Boolean,
 ) {
     val context = LocalContext.current
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
@@ -61,20 +71,23 @@ fun MainProfileDisplay(
         }
     }
 
-    if (imageUri != null){
-        if (Build.VERSION.SDK_INT < 28){
-            bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, imageUri)
-        } else {
-            val source = ImageDecoder.createSource(context.contentResolver, imageUri!!)
-            bitmap = ImageDecoder.decodeBitmap(source)
+    LaunchedEffect(imageUri) {
+        if (imageUri != null){
+            if (Build.VERSION.SDK_INT < 28){
+                bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, imageUri)
+            } else {
+                val source = ImageDecoder.createSource(context.contentResolver, imageUri!!)
+                bitmap = ImageDecoder.decodeBitmap(source)
+            }
+            //Upload the image to the server and pass the string URL to home screen
+            onCropSuccess(bitmap!!)
+            Log.d("MainProfileDisplay", "Image Uri: $imageUri")
         }
-        //Upload the image to the server and pass the string URL to home screen
-        onCropSuccess(bitmap!!)
     }
 
     val painter = rememberAsyncImagePainter(
         ImageRequest.Builder(LocalContext.current)
-            .data(if (userInfo.profileImage.isNotEmpty()) userInfo.profileImage else Icons.Default.Person)
+            .data(if (userInfo.profileImage.isNotEmpty()) userInfo.profileImage else R.drawable.baseline_person_24)
             .crossfade(true)
             .build(),
         contentScale = ContentScale.Crop
@@ -105,30 +118,57 @@ fun MainProfileDisplay(
                         )
                         .align(Alignment.Center)
                 )
+                if (isUploading){
+                    CircularProgressIndicator(
+                        modifier = modifier.size(80.dp),
+                    )
+                }
             } else {
-                AsyncImage(
+                Image(
                     modifier = modifier
                         .size(80.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.onSurface)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
                         .align(Alignment.Center)
                         .then(if (loading) modifier.shimmer() else modifier),
-                    model = painter,
+                    painter = painter,
                     contentDescription = null
                 )
+                if (isUploading){
+                    CircularProgressIndicator(
+                        modifier = modifier.size(80.dp),
+                    )
+                }
             }
-            IconButton(
-                modifier = modifier.align(Alignment.BottomEnd),
-                onClick = {
-                    val cropOption = CropImageContractOptions(CropImage.CancelledResult.uriContent, CropImageOptions())
-                    imageCropLauncher.launch(cropOption)
-                },
-            ) {
-                Icon(
-                    imageVector = Icons.Default.CameraAlt,
-                    contentDescription = null
-                )
-            }
+
+            Icon(
+                modifier = modifier.align(Alignment.BottomEnd)
+                    .clickable(onClick = {
+                        val cropOption = CropImageContractOptions(CropImage.CancelledResult.uriContent, CropImageOptions())
+                        imageCropLauncher.launch(cropOption)
+                    }),
+                imageVector = Icons.Default.CameraAlt,
+                contentDescription = null,
+                tint = Color.Gray
+            )
+
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun Preview() {
+    ShopyTheme {
+        MainProfileDisplay(
+            userInfo = UserInfoDomain(
+                profileImage = "",
+                name = "Alexius",
+                email = ""
+            ),
+
+            onCropSuccess = {},
+            isUploading = false
+        )
     }
 }

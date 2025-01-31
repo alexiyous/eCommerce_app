@@ -18,6 +18,7 @@ import androidx.navigation.compose.rememberNavController
 import com.alexius.core.util.Route
 import com.alexius.shopy.presentation.entrynavigation.EntryNavigation
 import com.alexius.shopy.presentation.home.HomeScreen
+import com.alexius.shopy.presentation.main_navigation.MainNavigation
 import com.alexius.shopy.presentation.ui.theme.ShopyTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -40,8 +41,7 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable(route = Route.MainNavigation.route){
-                        Greeting(name = "Shopy")
-                        Log.d("MainActivity", state.startDestination)
+                        MainNavigation()
                     }
                 }
             }

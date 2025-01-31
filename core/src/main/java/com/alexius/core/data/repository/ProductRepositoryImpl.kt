@@ -1,5 +1,6 @@
 package com.alexius.core.data.repository
 
+import android.graphics.Bitmap
 import android.util.Log
 import com.alexius.core.data.model.remote.UserInfoFirestore
 import com.alexius.core.data.model.remote.toDomainModel
@@ -11,7 +12,9 @@ import com.alexius.core.domain.repository.ProductRepository
 import com.alexius.core.util.UiState
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.firestore
+import com.google.firebase.storage.FirebaseStorage
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.ServerResponseException
 import kotlinx.coroutines.channels.awaitClose
@@ -19,6 +22,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.io.IOException
+import java.io.ByteArrayOutputStream
+import java.util.UUID
 
 class ProductRepositoryImpl(
     private val networkService: NetworkService
@@ -26,6 +31,7 @@ class ProductRepositoryImpl(
 
     private val auth = Firebase.auth
     private val db = Firebase.firestore
+    private val storage = FirebaseStorage.getInstance()
 
     override fun getProducts(): Flow<UiState<List<Product>>> = flow {
         try {
@@ -138,6 +144,58 @@ class ProductRepositoryImpl(
             .addOnFailureListener { exception ->
                 trySend(UiState.Error(exception.message ?: "Unknown error"))
             }
+        awaitClose()
+    }
+
+    override fun uploadImageAndStoreReference(bitmap: Bitmap): Flow<UiState<String>> = callbackFlow {
+        trySend(UiState.Loading)
+        val userId = auth.currentUser?.uid ?: throw Exception("User not authenticated")
+
+        // Convert bitmap to byte array
+        val baos = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        val data = baos.toByteArray()
+
+        // Create storage reference
+        val storageRef = storage.reference
+        val imageRef = storageRef.child("images/${UUID.randomUUID()}.jpg")
+
+        // Upload image
+        imageRef.putBytes(data)
+            .continueWithTask { task ->
+                if (!task.isSuccessful) {
+                    task.exception?.let { throw it }
+                }
+                imageRef.downloadUrl
+            }
+
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful){
+                    val downloadUri = task.result
+                    // Store reference in Firestore
+                    // Update one field, creating the document if it does not already exist.
+                    val imageData = hashMapOf("profileImage" to downloadUri.toString())
+
+                    db.collection("users").document(userId)
+                        .set(imageData, SetOptions.merge())
+                        .addOnSuccessListener{
+                            trySend(UiState.Success(downloadUri.toString()))
+                            close()
+                        }
+                        .addOnFailureListener { e ->
+                            trySend(UiState.Error(e.message ?: "Unknown error"))
+                            close()
+                        }
+                } else{
+                    trySend(UiState.Error(task.exception?.message ?: "Unknown error"))
+                    close()
+                }
+            }
+            .addOnFailureListener { e ->
+                trySend(UiState.Error(e.message ?: "Unknown error"))
+                close()
+            }
+
         awaitClose()
     }
 }

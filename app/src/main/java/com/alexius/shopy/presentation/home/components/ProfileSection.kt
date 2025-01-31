@@ -1,5 +1,7 @@
 package com.alexius.shopy.presentation.home.components
 
+import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,6 +31,7 @@ import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.valentinilk.shimmer.shimmer
+import com.alexius.shopy.R
 
 @Composable
 fun ProfileSection(
@@ -39,12 +42,17 @@ fun ProfileSection(
     onClick: () -> Unit
 ) {
 
+    val context = LocalContext.current
+
     val painter = rememberAsyncImagePainter(
         ImageRequest.Builder(LocalContext.current)
-            .data(if (imageUrl.isNotEmpty()) imageUrl else Icons.Default.Person)
+            .data(if (imageUrl.isNotEmpty()) imageUrl else R.drawable.baseline_person_24)
             .crossfade(true)
             .build(),
-        contentScale = ContentScale.Crop
+        contentScale = ContentScale.Crop,
+        onError = {
+            Toast.makeText(context, "Failed to load image profile", Toast.LENGTH_SHORT).show()
+        }
     )
 
     val loading = remember(isLoading, painter.state) {
@@ -55,15 +63,15 @@ fun ProfileSection(
         modifier = modifier.fillMaxWidth().padding(horizontal = 7.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        AsyncImage(
+        Image(
             modifier = modifier
                 .size(48.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.onSurface)
-                .clickable(onClick = onClick)
                 .then(if (loading) modifier.shimmer() else modifier)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .clickable(onClick = onClick)
             ,
-            model = painter,
+            painter = painter,
             contentDescription = null
         )
         Spacer(modifier = modifier.width(8.dp))
