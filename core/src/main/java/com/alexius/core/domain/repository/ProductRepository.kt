@@ -16,4 +16,6 @@ interface ProductRepository {
     fun resetPassword(email: String): Flow<UiState<Boolean>>
 
     fun initUserInfoInFirestore(userInfo: UserInfoDomain): Flow<UiState<Unit>>
+
+    fun getUserInfoFromFirestore(): Flow<UiState<UserInfoDomain>>
 }

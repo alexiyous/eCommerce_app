@@ -2,6 +2,7 @@ package com.alexius.core.di
 
 import com.alexius.core.domain.usecase.CreateInitUserFirestore
 import com.alexius.core.domain.usecase.GetProductsUseCase
+import com.alexius.core.domain.usecase.GetUserInfo
 import com.alexius.core.domain.usecase.ReadAppEntry
 import com.alexius.core.domain.usecase.ResetPassword
 import com.alexius.core.domain.usecase.SaveAppEntry
@@ -17,4 +18,5 @@ val useCaseModule = module {
     single { CreateInitUserFirestore(get()) }
     single { SaveAppEntry(get()) }
     single { ResetPassword(get()) }
+    single { GetUserInfo(get()) }
 }

@@ -1,6 +1,8 @@
 package com.alexius.core.data.repository
 
 import android.util.Log
+import com.alexius.core.data.model.remote.UserInfoFirestore
+import com.alexius.core.data.model.remote.toDomainModel
 import com.alexius.core.data.model.remote.toProduct
 import com.alexius.core.domain.model.Product
 import com.alexius.core.domain.model.UserInfoDomain
@@ -111,6 +113,29 @@ class ProductRepositoryImpl(
                 trySend(UiState.Success(Unit))
             }
             .addOnFailureListener(){exception ->
+                trySend(UiState.Error(exception.message ?: "Unknown error"))
+            }
+        awaitClose()
+    }
+
+    override fun getUserInfoFromFirestore(): Flow<UiState<UserInfoDomain>> = callbackFlow {
+        val userId = auth.currentUser?.uid ?: throw Exception("User not authenticated")
+        trySend(UiState.Loading)
+        db.collection("users").document(userId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null) {
+                    val userInfo = UserInfoFirestore(
+                        email = document.getString("email") ?: "",
+                        name = document.getString("name") ?: "",
+                        profileImage = document.getString("profileImage") ?: ""
+                    )
+                    trySend(UiState.Success(userInfo.toDomainModel()))
+                } else {
+                    trySend(UiState.Error("No such document"))
+                }
+            }
+            .addOnFailureListener { exception ->
                 trySend(UiState.Error(exception.message ?: "Unknown error"))
             }
         awaitClose()
