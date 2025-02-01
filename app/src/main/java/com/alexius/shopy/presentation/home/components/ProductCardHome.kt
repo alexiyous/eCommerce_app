@@ -64,11 +64,11 @@ fun ProductCardHome(
             onClick(product)
         }),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 10.dp
+            defaultElevation = 0.dp
         ),
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
         )
     ) {
         Column(

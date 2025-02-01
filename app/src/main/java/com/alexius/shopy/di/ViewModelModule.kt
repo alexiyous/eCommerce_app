@@ -26,6 +26,6 @@ val viewModelModule = module{
         SignUpViewModel(get(), get())
     }
     viewModel {
-        ProfileScreenViewModel(get())
+        ProfileScreenViewModel(get(), get())
     }
 }

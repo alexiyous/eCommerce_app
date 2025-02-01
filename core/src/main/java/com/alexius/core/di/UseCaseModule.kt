@@ -8,6 +8,7 @@ import com.alexius.core.domain.usecase.ResetPassword
 import com.alexius.core.domain.usecase.SaveAppEntry
 import com.alexius.core.domain.usecase.SignInWithEmail
 import com.alexius.core.domain.usecase.SignUpWithEmail
+import com.alexius.core.domain.usecase.UpdateUserNameOnline
 import com.alexius.core.domain.usecase.UploadImageProfile
 import org.koin.dsl.module
 
@@ -21,4 +22,5 @@ val useCaseModule = module {
     single { ResetPassword(get()) }
     single { GetUserInfo(get()) }
     single { UploadImageProfile(get()) }
+    single { UpdateUserNameOnline(get()) }
 }

@@ -198,4 +198,21 @@ class ProductRepositoryImpl(
 
         awaitClose()
     }
+
+    override fun updateUserInfoName(name: String): Flow<UiState<Unit>> {
+        val userId = auth.currentUser?.uid ?: throw Exception("User not authenticated")
+        val userInfo = hashMapOf("name" to name)
+        return callbackFlow {
+            trySend(UiState.Loading)
+            db.collection("users").document(userId)
+                .set(userInfo, SetOptions.merge())
+                .addOnSuccessListener {
+                    trySend(UiState.Success(Unit))
+                }
+                .addOnFailureListener { e ->
+                    trySend(UiState.Error(e.message ?: "Unknown error"))
+                }
+            awaitClose()
+        }
+    }
 }

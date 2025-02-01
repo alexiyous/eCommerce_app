@@ -1,9 +1,6 @@
 package com.alexius.shopy.presentation.main_navigation
 
-import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -21,7 +18,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -96,10 +92,10 @@ fun MainNavigation(
             AnimatedNavigationBar(
                 isBottomBarVisible = isBottomBarVisible.value,
                 buttons = bottomNavItems,
-                barColor = MaterialTheme.colorScheme.surfaceVariant,
+                barColor = MaterialTheme.colorScheme.primaryContainer,
                 circleColor = MaterialTheme.colorScheme.surfaceVariant,
-                selectedColor = MaterialTheme.colorScheme.onSurface,
-                unselectedColor = Color.Gray,
+                selectedColor = MaterialTheme.colorScheme.primary,
+                unselectedColor = MaterialTheme.colorScheme.onSurface,
                 selectedItem = selectedItem,
                 onItemClick = { index ->
                     when (index) {
@@ -124,7 +120,6 @@ fun MainNavigation(
 
                 LaunchedEffect(state.userInfo) {
                     navController.currentBackStackEntry?.savedStateHandle?.set("userInfo", if (newUserInfo != null) newUserInfo else state.userInfo)
-                    Log.d("MainNavigation", "ImageData: $newUserInfo")
                 }
 
                 val featuredProducts = remember(state.products){
@@ -169,22 +164,40 @@ fun MainNavigation(
                 val viedModel: ProfileScreenViewModel = koinViewModel()
                 val state by viedModel.state.collectAsStateWithLifecycle()
 
+                LaunchedEffect(userInfo) {
+                    viedModel.getUserInfoForViewModel(userInfo ?: UserInfoDomain(
+                        email = "",
+                        name = "",
+                        profileImage = ""
+                    ))
+                }
+
                 ProfileScreen(
-                    userInfo = userInfo ?: UserInfoDomain(
+                    userInfo = viedModel.state.value.userInfo ?: UserInfoDomain(
                         email = "",
                         name = "",
                         profileImage = ""
                     ),
+                    onProfileNameChange = {
+                        viedModel.updateNameInUserInfo(it)
+                    },
                     onUploadingNewProfilePic = {
                         isLoading = it
                     },
                     isLoading = state.isLoading,
+                    onNameSubmit = { onSuccess, onError ->
+                        viedModel.updateUserName(
+                            onSuccess = onSuccess,
+                            onError = onError
+                        )
+                    },
                     onCropSuccess = {
                         viedModel.uploadProfileImage(it,
                             onSuccessUploading = {
-                                Log.d("ProfileScreen", "UserInfo: $userInfo")
-                                Log.d("ProfileScreen", "Upload Image Success: $it")
-                                navController.previousBackStackEntry?.savedStateHandle?.set("newUserInfo", userInfo?.copy(profileImage = it))
+                                navController.previousBackStackEntry?.savedStateHandle?.set(
+                                    "newUserInfo",
+                                    viedModel.state.value.userInfo?.copy(profileImage = it)
+                                )
                             },
                             onError = {
                                 // Show Toast
@@ -195,7 +208,14 @@ fun MainNavigation(
                                 ).show()
                             }
                         )
-                    }
+                    },
+                    onSettingOptionClick = {
+                        navController.navigate(Route.SettingScreen.route){
+                            launchSingleTop = true
+                        }
+                    },
+                    onShareOptionClick = TODO(),
+                    onSignOut = TODO(),
                 )
             }
 
@@ -207,6 +227,10 @@ fun MainNavigation(
                 val products = navController.previousBackStackEntry?.savedStateHandle?.get<List<Product>>("productList")
 
             }
+
+            composable(Route.SettingScreen.route){
+                // SettingScreen()
+            }
         }
     }
 
@@ -216,6 +240,7 @@ fun MainNavigation(
 
 }
 
+///Use this function ONLY to navigate in main navigation inside the Bottom Navigation Bar
 private fun navigateTo(navController: NavController, route: String){
     navController.navigate(route) {
         navController.graph.startDestinationRoute?.let { homeScreen ->

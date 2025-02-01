@@ -21,4 +21,6 @@ interface ProductRepository {
     fun getUserInfoFromFirestore(): Flow<UiState<UserInfoDomain>>
 
     fun uploadImageAndStoreReference(bitmap: Bitmap): Flow<UiState<String>>
+
+    fun updateUserInfoName(name: String): Flow<UiState<Unit>>
 }
