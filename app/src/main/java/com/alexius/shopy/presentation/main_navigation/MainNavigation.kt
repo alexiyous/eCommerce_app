@@ -1,5 +1,6 @@
 package com.alexius.shopy.presentation.main_navigation
 
+import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -214,7 +215,15 @@ fun MainNavigation(
                             launchSingleTop = true
                         }
                     },
-                    onShareOptionClick = TODO(),
+                    onShareOptionClick = {
+                        Intent(Intent.ACTION_SEND).also {
+                            it.putExtra(Intent.EXTRA_TEXT, "You could check this app's source code at https://github.com/alexiyous/eCommerce_app /n and also you could DM me in Linkedin https://www.linkedin.com/in/alexius-andrianno/")
+                            it.type = "text/plain"
+                            if (it.resolveActivity(context.packageManager) != null) {
+                                context.startActivity(it)
+                            }
+                        }
+                    },
                     onSignOut = TODO(),
                 )
             }
@@ -240,7 +249,9 @@ fun MainNavigation(
 
 }
 
-///Use this function ONLY to navigate in main navigation inside the Bottom Navigation Bar
+/**
+ * Use this ONLY to navigate screen in the bottom navigation bar
+ */
 private fun navigateTo(navController: NavController, route: String){
     navController.navigate(route) {
         navController.graph.startDestinationRoute?.let { homeScreen ->

@@ -32,5 +32,10 @@
             android:theme="@style/Base.Theme.AppCompat"/>
 
     </application>
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.SEND"/>
+        </intent>
+    </queries>
 
 </manifest>

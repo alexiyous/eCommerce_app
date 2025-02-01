@@ -24,6 +24,9 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.io.IOException
 import java.io.ByteArrayOutputStream
 import java.util.UUID
+import kotlin.text.get
+import kotlin.text.set
+import kotlin.toString
 
 class ProductRepositoryImpl(
     private val networkService: NetworkService
@@ -158,41 +161,64 @@ class ProductRepositoryImpl(
 
         // Create storage reference
         val storageRef = storage.reference
-        val imageRef = storageRef.child("images/${UUID.randomUUID()}.jpg")
+        val newImageRef = storageRef.child("images/${UUID.randomUUID()}.jpg")
 
-        // Upload image
-        imageRef.putBytes(data)
-            .continueWithTask { task ->
-                if (!task.isSuccessful) {
-                    task.exception?.let { throw it }
-                }
-                imageRef.downloadUrl
-            }
+        // Get the current user's profile image URL from Firestore
+        db.collection("users").document(userId).get()
+            .addOnSuccessListener { document ->
+                val oldImageUrl = document.getString("profileImage")
 
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful){
-                    val downloadUri = task.result
-                    // Store reference in Firestore
-                    // Update one field, creating the document if it does not already exist.
-                    val imageData = hashMapOf("profileImage" to downloadUri.toString())
-
-                    db.collection("users").document(userId)
-                        .set(imageData, SetOptions.merge())
-                        .addOnSuccessListener{
-                            trySend(UiState.Success(downloadUri.toString()))
-                            close()
+                // Function to upload new image and store reference
+                fun uploadNewImage() {
+                    newImageRef.putBytes(data)
+                        .continueWithTask { task ->
+                            if (!task.isSuccessful) {
+                                task.exception?.let { throw it }
+                            }
+                            newImageRef.downloadUrl
+                        }
+                        .addOnCompleteListener { uploadTask ->
+                            if (uploadTask.isSuccessful) {
+                                val downloadUri = uploadTask.result
+                                val imageData = hashMapOf("profileImage" to downloadUri.toString())
+                                db.collection("users").document(userId)
+                                    .set(imageData, SetOptions.merge())
+                                    .addOnSuccessListener {
+                                        trySend(UiState.Success(downloadUri.toString()))
+                                        close()
+                                    }
+                                    .addOnFailureListener { e ->
+                                        trySend(UiState.Error(e.message ?: "Unknown error"))
+                                        close()
+                                    }
+                            } else {
+                                trySend(UiState.Error(uploadTask.exception?.message ?: "Unknown error"))
+                                close()
+                            }
                         }
                         .addOnFailureListener { e ->
                             trySend(UiState.Error(e.message ?: "Unknown error"))
                             close()
                         }
-                } else{
-                    trySend(UiState.Error(task.exception?.message ?: "Unknown error"))
-                    close()
+                }
+
+                // Delete the old image if it exists, then upload the new image
+                if (!oldImageUrl.isNullOrEmpty()) {
+                    val oldImageRef = storage.getReferenceFromUrl(oldImageUrl)
+                    oldImageRef.delete().addOnCompleteListener { deleteTask ->
+                        if (deleteTask.isSuccessful) {
+                            uploadNewImage()
+                        } else {
+                            trySend(UiState.Error(deleteTask.exception?.message ?: "Failed to delete old image"))
+                            close()
+                        }
+                    }
+                } else {
+                    uploadNewImage()
                 }
             }
             .addOnFailureListener { e ->
-                trySend(UiState.Error(e.message ?: "Unknown error"))
+                trySend(UiState.Error(e.message ?: "Failed to get user info"))
                 close()
             }
 
